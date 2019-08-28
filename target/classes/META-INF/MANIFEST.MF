@@ -1,0 +1,30 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1567001467225
+Build-Jdk: 1.8.0_181
+Built-By: ur
+Bundle-Activator: com.loccioni.teachposition.impl.Activator
+Bundle-Category: URCap
+Bundle-ContactAddress: 123 URCap Street
+Bundle-Copyright: Copyright notice (C)
+Bundle-Description: This is a description of the URCap
+Bundle-LicenseType: License type
+Bundle-ManifestVersion: 2
+Bundle-Name: teachposition
+Bundle-SymbolicName: com.loccioni.teachposition
+Bundle-Vendor: URCaps R us Inc.
+Bundle-Version: 1.0.0.SNAPSHOT
+Created-By: Apache Maven Bundle Plugin
+Import-Package: com.ur.urcap.api.contribution;version="[1.6.0,2.0.0)",co
+ m.ur.urcap.api.contribution.installation;version="[1.6.0,2.0.0)",com.ur
+ .urcap.api.contribution.installation.swing;version="[1.6.0,2.0.0)",com.
+ ur.urcap.api.domain;version="[1.6.0,2.0.0)",com.ur.urcap.api.domain.dat
+ a;version="[1.6.0,2.0.0)",com.ur.urcap.api.domain.script;version="[1.6.
+ 0,2.0.0)",com.ur.urcap.api.domain.userinteraction;version="[1.6.0,2.0.0
+ )",com.ur.urcap.api.domain.userinteraction.keyboard;version="[1.6.0,2.0
+ .0)",com.ur.urcap.api.domain.value;version="[1.6.0,2.0.0)",com.ur.urcap
+ .api.domain.value.jointposition;version="[1.6.0,2.0.0)",com.ur.urcap.ap
+ i.domain.value.simple;version="[1.6.0,2.0.0)",com.ur.urcap.api.domain.v
+ ariable;version="[1.6.0,2.0.0)",javax.swing,javax.swing.filechooser,jav
+ ax.swing.table,org.apache.commons.lang.math;version="[2.6,3)",org.osgi.
+ framework;version="[1.6,2)"
+Tool: Bnd-2.1.0.20130426-122213
