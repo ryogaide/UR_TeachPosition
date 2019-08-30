@@ -45,6 +45,7 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 	public TeachPositionInstallationNodeView(Style style) {
 		this.style = style;
 	}
+	//test for git
 
 	@Override
 	public void buildUI(JPanel jPanel, final TeachPositionInstallationNodeContribution installationNode) {
