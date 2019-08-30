@@ -72,6 +72,10 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 		});
 	}
 	
+	public void onUrSelected(String RobotName) {
+		System.out.println(RobotName);
+	}
+	
 	public void testPrint() {
 //		String data = new String();
 //		Writer.getResolvedVariableName();

@@ -1,5 +1,6 @@
 package com.loccioni.teachposition.impl;
 
+import com.ur.urcap.api.contribution.InstallationNodeContribution;
 import com.ur.urcap.api.contribution.installation.swing.SwingInstallationNodeView;
 
 import javax.swing.Box;
@@ -42,10 +43,26 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		JRadioButton UrB = new JRadioButton("UR B (int)");
 		group.add(UrA);
 		group.add(UrB);
+		UrA.setName("UrA");
+		UrB.setName("UrB");
+		UrA.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JRadioButton button = (JRadioButton) e.getSource();
+				installationNode.onUrSelected(button.getName());
+			}
+		});
+		UrB.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JRadioButton button = (JRadioButton) e.getSource();
+				installationNode.onUrSelected(button.getName());
+			}
+		});
+		
+		UrB.addActionListener(new RobotSelectListener());
 		panelSelect.add(UrA);
 		panelSelect.add(UrB);
-		UrA.addActionListener(new RobotSelectListener());
-		UrB.addActionListener(new RobotSelectListener());
 		panelSelect.setLayout(new BoxLayout(panelSelect, BoxLayout.Y_AXIS));
 		panelButton.add(panelSelect);
 		
@@ -79,7 +96,7 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			JRadioButton button = (JRadioButton) e.getSource();
-			System.out.println(button.getName());
+			
 		}
 	}
 	
