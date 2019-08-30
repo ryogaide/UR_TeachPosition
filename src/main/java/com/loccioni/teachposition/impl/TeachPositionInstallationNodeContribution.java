@@ -94,7 +94,7 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 		int selected = filechooser.showOpenDialog(null);
 		view.tableModel.deleteAll();
 		if(selected == JFileChooser.APPROVE_OPTION) {
-			file = filechooser.getSelectedFile();
+			file = filechooser.getSelectedFile(); 
 			if(checkBeforeReadFile(file)) {
 				try {
 					BufferedReader br = new BufferedReader(new FileReader(file));
