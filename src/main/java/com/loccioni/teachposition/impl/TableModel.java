@@ -1,15 +1,22 @@
 package com.loccioni.teachposition.impl;
 
 import java.util.ArrayList;
+import java.math.BigDecimal;
 
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.lang.math.NumberUtils;
 
 public class TableModel extends AbstractTableModel{
+	private final JTable table;
 	
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
-	private String[] columns = {"Names", "X", "Y", "Z", "RX", "RY", "RZ"};
+	private String[] columns = {"Names", "X[m]", "Y[m]", "Z[m]", "RX[rad]", "RY[rad]", "RZ[rad]"};
+	
+	public TableModel(JTable table) {
+		this.table = table;
+	}
 	
 	@Override
 	public String getColumnName(int column) {
@@ -44,9 +51,16 @@ public class TableModel extends AbstractTableModel{
 		fireTableRowsInserted(0, data.size()-1);
 	}
 	
-	@Override
-	public void setValueAt(Object val, int rowIndex, int columnIndex) {
-		data.get(rowIndex)[columnIndex] = val;
+	public void addRow(String name, Double[] val) {
+		for(int i=0; i<6; i++) {
+			val[i] = BigDecimal.valueOf(val[i]).setScale(4, BigDecimal.ROUND_DOWN).doubleValue();
+		}
+		data.add(new Object[] {name,val[0], val[1], val[2],val[3],val[4],val[5]});
+		fireTableRowsInserted(0, data.size()-1);
+	}
+	
+	public void setValueAt(Double val, int rowIndex, int columnIndex) {
+		data.get(rowIndex)[columnIndex] = BigDecimal.valueOf(val).setScale(4, BigDecimal.ROUND_DOWN).doubleValue();
 		fireTableCellUpdated(rowIndex, columnIndex);
 	}
 	

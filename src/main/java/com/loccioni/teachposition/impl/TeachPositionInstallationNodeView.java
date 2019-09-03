@@ -1,6 +1,5 @@
 package com.loccioni.teachposition.impl;
 
-import com.ur.urcap.api.contribution.InstallationNodeContribution;
 import com.ur.urcap.api.contribution.installation.swing.SwingInstallationNodeView;
 
 import javax.swing.Box;
@@ -10,8 +9,9 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableColumn;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 
@@ -23,8 +23,8 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 
 	private final Style style;
 	private JTextField jTextField = new JTextField();
-	public TableModel tableModel = new TableModel();
 	public JTable table = new JTable();
+	public TableModel tableModel = new TableModel(table);
 	
 	public TeachPositionInstallationNodeView(Style style) {
 		this.style = style;
@@ -60,16 +60,15 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 			}
 		});
 		
-		UrB.addActionListener(new RobotSelectListener());
 		panelSelect.add(UrA);
 		panelSelect.add(UrB);
 		panelSelect.setLayout(new BoxLayout(panelSelect, BoxLayout.Y_AXIS));
 		panelButton.add(panelSelect);
 		
 		panelButton.add(createHorizontalSpacing());
-		panelButton.add(JFileChooser(installationNode));
+		panelButton.add(JButtonGoTo(installationNode));
 		panelButton.add(createHorizontalSpacing());
-		panelButton.add(JRegister(installationNode));
+		panelButton.add(JButtonSet(installationNode));
 		panelButton.add(createHorizontalSpacing());
 		panelButton.add(JFileWriter(installationNode));
 		panelButton.add(createHorizontalSpacing());
@@ -92,20 +91,12 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		return button;
 	}
 	
-	class RobotSelectListener implements ActionListener{
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			JRadioButton button = (JRadioButton) e.getSource();
-			
-		}
-	}
-	
-	private JButton JFileChooser(final TeachPositionInstallationNodeContribution installationNode) {
-		JButton button = new JButton("Open");
+	private JButton JButtonGoTo(final TeachPositionInstallationNodeContribution installationNode) {
+		JButton button = new JButton("Go To");
 		button.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				installationNode.fileRead();
+				installationNode.onGotoButtonPressed();
 			}
 		});
 		return button;
@@ -122,8 +113,8 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		return button;
 	}
 	
-	public JButton JRegister(final TeachPositionInstallationNodeContribution installationNode) {
-		JButton button = new JButton ("Register");
+	public JButton JButtonSet(final TeachPositionInstallationNodeContribution installationNode) {
+		JButton button = new JButton ("Set");
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -139,21 +130,14 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getTableHeader().setReorderingAllowed(false);
+		table.getTableHeader().setResizingAllowed(false);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		
+		DefaultTableColumnModel columnModel = (DefaultTableColumnModel)table.getColumnModel();
+		table.setAutoCreateRowSorter(true);
+		TableColumn column = columnModel.getColumn(0);
+		column.setPreferredWidth(150);
 		return sp;
-	}
-	
-	private Box createDescription(String desc) {
-		Box box = Box.createHorizontalBox();
-		box.setAlignmentX(Component.LEFT_ALIGNMENT);
-		
-		JLabel label = new JLabel(desc);
-		
-		box.add(label);
-		return box;
-	}
-	
-	private Component createSpacer(int width, int height) {
-		return Box.createRigidArea(new Dimension(width, height));
 	}
 	
 	private Component createHorizontalSpacing() {
