@@ -9,8 +9,11 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
@@ -18,13 +21,14 @@ import javax.swing.JScrollPane;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.*;
+import java.util.Arrays;
 
 public class TeachPositionInstallationNodeView implements SwingInstallationNodeView<TeachPositionInstallationNodeContribution> {
 
 	private final Style style;
 	private JTextField jTextField = new JTextField();
 	public JTable table = new JTable();
-	public TableModel tableModel = new TableModel(table);
+	public TableModel tableModel = new TableModel();
 	
 	public TeachPositionInstallationNodeView(Style style) {
 		this.style = style;
@@ -48,15 +52,15 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		UrA.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JRadioButton button = (JRadioButton) e.getSource();
-				installationNode.onUrSelected(button.getName());
+				JRadioButton radio = (JRadioButton) e.getSource();
+				installationNode.onUrSelected(radio);
 			}
 		});
 		UrB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JRadioButton button = (JRadioButton) e.getSource();
-				installationNode.onUrSelected(button.getName());
+				JRadioButton radio = (JRadioButton) e.getSource();
+				installationNode.onUrSelected(radio);
 			}
 		});
 		
@@ -138,16 +142,21 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 	}
 	
 	private JScrollPane varTable() {
-		table.setModel(tableModel);
 		JScrollPane sp = new JScrollPane(table);
-		
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getTableHeader().setReorderingAllowed(false);
 		table.getTableHeader().setResizingAllowed(false);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		table.setModel(tableModel);
 		
+//		table.setAutoCreateRowSorter(true);	//To make sorter automatically
+//		table.getRowSorter().setSortKeys(Arrays.asList(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
+//		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
+//		table.setRowSorter(sorter);
+//		for(int i=1; i<table.getColumnCount(); i++) {
+//			sorter.setSortable(i, false);
+//		}
 		DefaultTableColumnModel columnModel = (DefaultTableColumnModel)table.getColumnModel();
-		table.setAutoCreateRowSorter(true);
 		TableColumn column = columnModel.getColumn(0);
 		column.setPreferredWidth(150);
 		return sp;
@@ -160,7 +169,7 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 	private Component createVerticalSpacing() {
 		return Box.createRigidArea(new Dimension(0, style.getVerticalSpacing()));
 	}
-
+	
 	public void setPopupText(String t) {
 		jTextField.setText(t);
 	}

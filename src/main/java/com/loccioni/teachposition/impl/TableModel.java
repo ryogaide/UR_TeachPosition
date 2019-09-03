@@ -3,20 +3,14 @@ package com.loccioni.teachposition.impl;
 import java.util.ArrayList;
 import java.math.BigDecimal;
 
-import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.lang.math.NumberUtils;
 
+@SuppressWarnings("serial")
 public class TableModel extends AbstractTableModel{
-	private final JTable table;
-	
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 	private String[] columns = {"Names", "X[m]", "Y[m]", "Z[m]", "RX[rad]", "RY[rad]", "RZ[rad]"};
-	
-	public TableModel(JTable table) {
-		this.table = table;
-	}
 	
 	@Override
 	public String getColumnName(int column) {

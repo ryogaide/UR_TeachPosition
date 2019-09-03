@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -82,7 +83,8 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	java.net.URL fileURL = getClass().getResource("code.txt");
 	
 	public void SetPosition() {
-		final int selectedRow = view.table.getSelectedRow();
+//		final int selectedRow = view.table.getSelectedRow();
+		final int selectedRow = view.table.convertRowIndexToModel(view.table.getSelectedRow());
 		if(selectedRow  == -1) {
 			JOptionPane.showMessageDialog(null, "You have to select one row", "Message", JOptionPane.WARNING_MESSAGE);
 			return;
@@ -106,7 +108,8 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	}
 	
 	public void onGotoButtonPressed() {
-		final int selectedRow = view.table.getSelectedRow();
+		final int selectedRow = view.table.convertRowIndexToModel(view.table.getSelectedRow());
+//		final int selectedRow = view.table.getSelectedRow();
 		if(selectedRow  == -1) {
 			JOptionPane.showMessageDialog(null, "You have to select one row", "Message", JOptionPane.WARNING_MESSAGE);
 			return;
@@ -131,8 +134,8 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 		}
 	}
 	
-	public void onUrSelected(String RobotName) {
-		selectedRobot = RobotName;
+	public void onUrSelected(JRadioButton radio) {
+		selectedRobot = radio.getName();
 		JFileChooser filechooser = new JFileChooser();
 		FileFilter filter = new FileNameExtensionFilter("Position file(.variables)", "variables");
 		filechooser.addChoosableFileFilter(filter);
@@ -251,7 +254,7 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 					if (keyName.startsWith("*")) { 	// joint positions
 						JointPositions jPos = model.get(keyName, jPosDefaultValue);
 						bw.write(keyName.substring(1) + "=" + jointPositionsToString(jPos));
-						System.out.println(keyName.substring(1) + "=" + jPos.toString());
+//						System.out.println(keyName.substring(1) + "=" + jPos.toString());
 					} else { 					// pose
 						Pose pose = model.get(keyName, PoseDefaultValue);
 						bw.append(keyName + "=" + pose.toString());
