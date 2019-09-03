@@ -1,4 +1,4 @@
-package com.loccioni.popup.impl;
+package com.loccioni.teachposition.impl;
 
 import java.text.DecimalFormat;
 import java.util.List;

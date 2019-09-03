@@ -1,4 +1,4 @@
-package com.loccioni.popup.impl;
+package com.loccioni.teachposition.impl;
 
 public class UrAxisAngle {
 

@@ -7,11 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -25,6 +23,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.ur.urcap.api.contribution.InstallationNodeContribution;
 import com.ur.urcap.api.contribution.installation.InstallationAPIProvider;
 import com.ur.urcap.api.domain.data.DataModel;
+import com.ur.urcap.api.domain.feature.Feature;
 import com.ur.urcap.api.domain.script.ScriptWriter;
 import com.ur.urcap.api.domain.userinteraction.RobotPositionCallback;
 import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputCallback;
@@ -32,6 +31,7 @@ import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputFactory;
 import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardTextInput;
 import com.ur.urcap.api.domain.userinteraction.robot.movement.MovementCompleteEvent;
 import com.ur.urcap.api.domain.userinteraction.robot.movement.RobotMovementCallback;
+import com.ur.urcap.api.domain.util.Filter;
 import com.ur.urcap.api.domain.value.Pose;
 import com.ur.urcap.api.domain.value.PoseFactory;
 import com.ur.urcap.api.domain.value.jointposition.JointPosition;
@@ -39,13 +39,19 @@ import com.ur.urcap.api.domain.value.jointposition.JointPositionFactory;
 import com.ur.urcap.api.domain.value.jointposition.JointPositions;
 import com.ur.urcap.api.domain.value.simple.Angle;
 import com.ur.urcap.api.domain.value.simple.Length;
-import com.ur.urcap.api.domain.variable.Variable;
 import com.ur.urcap.api.domain.variable.VariableModel;
+
 
 public class TeachPositionInstallationNodeContribution implements InstallationNodeContribution {
 
 	private static final String POPUPTITLE_KEY = "popuptitle";
 	private static final String DEFAULT_VALUE = "Teach Position";
+	private String selectedRobot = "";	//To save which Robot we chose
+	
+	public final String RobotA = "A";
+	public final String RobotB = "B";
+	public static final String RefValueA = "A_REF_VAR";
+	public static final String RefValueB = "A_REF_VAR";
 	
 	private final TeachPositionInstallationNodeView view;
 	private final KeyboardInputFactory keyboardFactory;
@@ -126,6 +132,7 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	}
 	
 	public void onUrSelected(String RobotName) {
+		selectedRobot = RobotName;
 		JFileChooser filechooser = new JFileChooser();
 		FileFilter filter = new FileNameExtensionFilter("Position file(.variables)", "variables");
 		filechooser.addChoosableFileFilter(filter);
@@ -259,6 +266,83 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 		}else if(option == JOptionPane.NO_OPTION) {
 //			JOptionPane.showMessageDialog(null, "Failed", "Message", JOptionPane.INFORMATION_MESSAGE);
 			return;
+		}
+	}
+	
+	public void onRefButtonPressed() {
+//		UrPose pose = new UrPose(new double[] {0.2, 0.5, 0.1, 1.57, 0, 3.14});
+//		UrPose poseInv = new UrPose(UrPose.pose_inv(pose.toDoubleArray()));
+//		System.out.println("pose = " + pose.toString());
+//		System.out.println("poseInv = " + poseInv.toString());
+//		UrPose pose1 = new UrPose(new double[] {0.2, 0.5, 0.1, 1.57, 0, 0});
+//		UrPose pose2 = new UrPose(new double[] {0.2, 0.5, 0.6, 1.57, 0, 0});
+//		UrPose poseTrans = new UrPose(UrPose.pose_trans(pose1.toDoubleArray(), pose2.toDoubleArray()));
+//		System.out.println("pose1 = " + pose1.toString());
+//		System.out.println("pose2 = " + pose2.toString());
+//		System.out.println("poseTrans = " + poseTrans.toString());
+		
+		//System.out.println("REF button pressed!");
+		
+		Collection<Feature> features =  apiProvider.getInstallationAPI().getFeatureModel().getGeomFeatures(new Filter<Feature>() {
+			
+			@Override
+			public boolean accept(Feature element) {
+				if (selectedRobot == RobotA) {
+					return element.getName().contentEquals("A_REF");
+				}
+				if (selectedRobot == RobotB) {
+					return element.getName().contentEquals("B_REF");
+				}
+				return false;
+			}
+		});
+		Pose nullPose = PoseDefaultValue;
+		Pose newRef = nullPose;
+		if (features.size() == 1) {
+			newRef = features.iterator().next().getPose();
+		}
+		Pose oldRef = nullPose;
+		if (selectedRobot == RobotA) {
+			oldRef = model.get(RefValueA, PoseDefaultValue);
+		}
+		if (selectedRobot == RobotB) {
+			oldRef = model.get(RefValueB, PoseDefaultValue);
+		}
+		if (oldRef.epsilonEquals(nullPose, 0.01, Length.Unit.MM, 0.01, Angle.Unit.DEG)) {
+			System.out.println("OLD reference pose NOT defined!");
+			return;
+		} else {
+			System.out.println("OLD REF = " + oldRef.toString());
+		}
+		if (newRef.epsilonEquals(nullPose, 0.01, Length.Unit.MM, 0.01, Angle.Unit.DEG)) {
+			System.out.println("NEW reference pose NOT defined!");
+			return;
+		} else {
+			System.out.println("NEW REF = " + newRef.toString());
+		}
+		if (newRef.epsilonEquals(oldRef, 0.01, Length.Unit.MM, 0.01, Angle.Unit.DEG)) {
+			System.out.println("Same reference: no need to update!");
+			return;
+		}
+		System.out.println("Reference was changed!");
+		Set<String> keySet = model.getKeys();
+		ArrayList<String> keyList = new ArrayList<String>(keySet);
+		Collections.sort(keyList);
+		Iterator<String> keysI = keyList.iterator();
+		while (keysI.hasNext()) {
+			String key = keysI.next();
+			if (!key.startsWith("*")) { 	// pose
+				double[] oldPose = model.get(key, PoseDefaultValue).toArray(Length.Unit.M, Angle.Unit.RAD);
+				double[] newPose = UrPose.pose_trans(newRef.toArray(Length.Unit.M, Angle.Unit.RAD), UrPose.pose_trans(UrPose.pose_inv(oldRef.toArray(Length.Unit.M, Angle.Unit.RAD)), oldPose));
+				model.set(key, poseFactory.createPose(newPose[0], newPose[1], newPose[2], newPose[3], newPose[4], newPose[5], Length.Unit.M, Angle.Unit.RAD));
+			}
+		}
+		double[] ref = newRef.toArray(Length.Unit.M, Angle.Unit.RAD);
+		if (selectedRobot.contentEquals("A")) {
+			model.set(RefValueA, poseFactory.createPose(ref[0], ref[1], ref[2], ref[3], ref[4], ref[5], Length.Unit.M, Angle.Unit.RAD));
+		}
+		if (selectedRobot.contentEquals("B")) {
+			model.set(RefValueB, poseFactory.createPose(ref[0], ref[1], ref[2], ref[3], ref[4], ref[5], Length.Unit.M, Angle.Unit.RAD));
 		}
 	}
 	

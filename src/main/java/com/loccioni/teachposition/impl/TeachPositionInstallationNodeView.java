@@ -43,8 +43,8 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		JRadioButton UrB = new JRadioButton("UR B (int)");
 		group.add(UrA);
 		group.add(UrB);
-		UrA.setName("UrA");
-		UrB.setName("UrB");
+		UrA.setName(installationNode.RobotA);
+		UrB.setName(installationNode.RobotB);
 		UrA.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -72,7 +72,9 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		panelButton.add(createHorizontalSpacing());
 		panelButton.add(JFileWriter(installationNode));
 		panelButton.add(createHorizontalSpacing());
-		panelButton.add(test(installationNode));
+		panelButton.add(JButtonRef(installationNode));
+		panelButton.add(createHorizontalSpacing());
+//		panelButton.add(test(installationNode));
 		panelButton.setLayout(new BoxLayout(panelButton, BoxLayout.X_AXIS));
 		jPanel.add(panelButton);
 		
@@ -119,6 +121,17 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				installationNode.SetPosition();
+			}
+		});
+		return button;
+	}
+	
+	public JButton JButtonRef(final TeachPositionInstallationNodeContribution installationNode) {
+		JButton button = new JButton ("REF");
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				installationNode.onRefButtonPressed();
 			}
 		});
 		return button;
