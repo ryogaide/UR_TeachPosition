@@ -149,8 +149,8 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setModel(tableModel);
 		
-//		table.setAutoCreateRowSorter(true);	//To make sorter automatically
-//		table.getRowSorter().setSortKeys(Arrays.asList(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
+		table.setAutoCreateRowSorter(true);	//To make sorter automatically
+		table.getRowSorter().setSortKeys(Arrays.asList(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
 //		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 //		table.setRowSorter(sorter);
 //		for(int i=1; i<table.getColumnCount(); i++) {

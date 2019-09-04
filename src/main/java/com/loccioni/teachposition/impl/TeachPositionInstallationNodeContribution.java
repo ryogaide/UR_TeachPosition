@@ -12,8 +12,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -40,7 +38,6 @@ import com.ur.urcap.api.domain.value.jointposition.JointPositionFactory;
 import com.ur.urcap.api.domain.value.jointposition.JointPositions;
 import com.ur.urcap.api.domain.value.simple.Angle;
 import com.ur.urcap.api.domain.value.simple.Length;
-import com.ur.urcap.api.domain.variable.VariableModel;
 
 
 public class TeachPositionInstallationNodeContribution implements InstallationNodeContribution {
@@ -63,7 +60,6 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	private final JointPositionFactory jPosFactory;
 	private final Pose PoseDefaultValue;
 	private final JointPositions jPosDefaultValue;
-	private final VariableModel varModel;
 	private File fileGlobal;
 	
 	public TeachPositionInstallationNodeContribution(InstallationAPIProvider apiProvider, DataModel model, 
@@ -76,7 +72,6 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 		this.apiProvider = apiProvider;
 		this.PoseDefaultValue = poseFactory.createPose(0, 0, 0, 0, 0, 0, Length.Unit.M, Angle.Unit.RAD);
 		this.jPosDefaultValue = jPosFactory.createJointPositions(0, 0, 0, 0, 0, 0, Angle.Unit.RAD);
-		this.varModel = apiProvider.getInstallationAPI().getVariableModel();
 		
 	}
 	
@@ -147,7 +142,10 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 			if(checkBeforeReadFile(fileGlobal) != true) return;
 			try {
 				removeAllKeys();
-				view.tableModel.deleteAll();
+				System.out.println("debug point 1");
+//				view.table.removeAll();
+//				view.tableModel.deleteAll();
+				System.out.println("debug point 2");
 				BufferedReader br = new BufferedReader(new FileReader(fileGlobal));
 				while((line = br.readLine()) != null) {
 					if(line.contains("p[")) {
@@ -161,7 +159,9 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 						}
 						model.set(name, poseFactory.createPose(valueDouble[0], valueDouble[1], valueDouble[2], 
 								valueDouble[3], valueDouble[4], valueDouble[5], Length.Unit.M, Angle.Unit.RAD));
+						System.out.println("debug point 3");
 						view.tableModel.addRow(name, valueDouble);
+						System.out.println("debug point 4");
 					}else if(line.contains("[")) {
 						String[] temp = line.split("=");
 				    	String name = temp[0];
@@ -198,7 +198,7 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	}
 	
 	public void testPrint() {
-//		Collection<Variable> variables = varModel.getAll();
+		
 	}
 	
 	public File fileRead() {
@@ -216,26 +216,6 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 			System.out.println("ERROR");
 		}
 		return null;
-	}
-	
-	public void SetValueFromFile(File file) {
-		if(checkBeforeReadFile(file)) {
-			try {
-				BufferedReader br = new BufferedReader(new FileReader(file));
-				while((line = br.readLine()) != null) {
-					Pattern p = Pattern.compile("=p");	//find the data of position
-					Matcher m = p.matcher(line);
-					if(m.find() != true) continue;
-					String[] dataFromFile = line.split(",\\s*|\\s+|\\=p\\[|\\]");
-					view.tableModel.addRowFromFile(dataFromFile);
-				}
-				br.close();
-			}catch(FileNotFoundException err) {
-				System.out.println(err);
-			}catch(IOException err) {
-				System.out.println(err);
-			}
-		}
 	}
 	
 	public void fileWrite() {

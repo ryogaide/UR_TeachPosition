@@ -1,6 +1,7 @@
 package com.loccioni.teachposition.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.math.BigDecimal;
 
 import javax.swing.table.AbstractTableModel;
@@ -27,24 +28,6 @@ public class TableModel extends AbstractTableModel{
 		return columns.length;
 	}
 	
-	public void addRowFromFile(String[] dataFromFile) {
-		Object name = new Object();
-		Object[] dataPosition = new Object[6];
-		for(int i=0; i<dataFromFile.length; i++) {
-			if(NumberUtils.isNumber(dataFromFile[i]) == true) {
-				name = dataFromFile[i-1];
-				for(int j=0; j<6; j++) {
-					dataPosition[j] = dataFromFile[i];
-					i++;
-				}
-				break;
-			}
-		}
-		data.add(new Object[] {name,dataPosition[0], dataPosition[1],
-				dataPosition[2],dataPosition[3],dataPosition[4],dataPosition[5],});
-		fireTableRowsInserted(0, data.size()-1);
-	}
-	
 	public void addRow(String name, Double[] val) {
 		for(int i=0; i<6; i++) {
 			val[i] = BigDecimal.valueOf(val[i]).setScale(4, BigDecimal.ROUND_DOWN).doubleValue();
@@ -64,6 +47,6 @@ public class TableModel extends AbstractTableModel{
 	}
 	
 	public void deleteAll() {
-		data.clear();
+//		data.clear();
 	}
 }
