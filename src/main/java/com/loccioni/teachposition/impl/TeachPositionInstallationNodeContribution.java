@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,6 +62,7 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	private final Pose PoseDefaultValue;
 	private final JointPositions jPosDefaultValue;
 	private File fileGlobal;
+	DecimalFormat df = new DecimalFormat("0.0000");
 	
 	public TeachPositionInstallationNodeContribution(InstallationAPIProvider apiProvider, DataModel model, 
 			TeachPositionInstallationNodeView view) {
@@ -78,11 +80,11 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	java.net.URL fileURL = getClass().getResource("code.txt");
 	
 	public void SetPosition() {
-		final int selectedRow = view.table.convertRowIndexToModel(view.table.getSelectedRow());
-		if(selectedRow  == -1) {
+		if(view.table.getSelectedRow() == -1) {
 			JOptionPane.showMessageDialog(null, "You have to select one row", "Message", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
+		final int selectedRow = view.table.convertRowIndexToModel(view.table.getSelectedRow());
 		final String nameKey = view.DefTableModel.getValueAt(selectedRow, 0).toString();
 		apiProvider.getUserInterfaceAPI().getUserInteraction().getUserDefinedRobotPosition(new RobotPositionCallback() {
 			@Override
@@ -95,18 +97,18 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 				
 				double[] data_double = pose.toArray(Length.Unit.M ,Angle.Unit.RAD);
 				for(int i=1; i<view.DefTableModel.getColumnCount(); i++) {
-					view.DefTableModel.setValueAt(data_double[i-1], selectedRow, i);
+					view.DefTableModel.setValueAt(df.format(data_double[i-1]), selectedRow, i);
 				}
 			}
 		});
 	}
 	
 	public void onGotoButtonPressed() {
-		final int selectedRow = view.table.convertRowIndexToModel(view.table.getSelectedRow());
-		if(selectedRow  == -1) {
+		if(view.table.getSelectedRow() == -1) {
 			JOptionPane.showMessageDialog(null, "You have to select one row", "Message", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
+		final int selectedRow = view.table.convertRowIndexToModel(view.table.getSelectedRow());
 		String nameKey = view.DefTableModel.getValueAt(selectedRow, 0).toString();
 		if(model.isSet(nameKey) == true) {
 			Pose pose = model.get(nameKey, PoseDefaultValue);
@@ -153,7 +155,8 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 							val[i] = Double.valueOf(temp[i].trim());
 						}
 						model.set(name, poseFactory.createPose(val[0], val[1], val[2], val[3], val[4], val[5], Length.Unit.M, Angle.Unit.RAD));
-						view.DefTableModel.addRow(new Object[] {name,val[0], val[1], val[2],val[3],val[4],val[5]});
+						view.DefTableModel.addRow(new Object[] {name,df.format(val[0]), df.format(val[1]), df.format(val[2]), 
+								df.format(val[3]), df.format(val[4]), df.format(val[5])});
 					}else if(line.contains("[")) {
 						String[] temp = line.split("=");
 				    	String name = temp[0];
@@ -164,7 +167,8 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 				    		val[i] = Double.valueOf(temp[i].trim());
 				    	}
 				    	model.set("*"+name, jPosFactory.createJointPositions(val[0], val[1],val[2], val[3], val[4], val[5], Angle.Unit.RAD));
-				    	view.DefTableModel.addRow(new Object[] {name,val[0], val[1], val[2],val[3],val[4],val[5]});
+				    	view.DefTableModel.addRow(new Object[] {name,df.format(val[0]), df.format(val[1]), df.format(val[2]), 
+								df.format(val[3]), df.format(val[4]), df.format(val[5])});
 					}
 				}
 				br.close();
