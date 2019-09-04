@@ -12,8 +12,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableRowSorter;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
@@ -28,7 +28,9 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 	private final Style style;
 	private JTextField jTextField = new JTextField();
 	public JTable table = new JTable();
-	public TableModel tableModel = new TableModel();
+	
+	private final String[] columns = {"Names", "X[m]", "Y[m]", "Z[m]", "RX[rad]", "RY[rad]", "RZ[rad]"};
+	public DefaultTableModel DefTableModel = new DefaultTableModel(columns, 0);
 	
 	public TeachPositionInstallationNodeView(Style style) {
 		this.style = style;
@@ -78,7 +80,7 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		panelButton.add(createHorizontalSpacing());
 		panelButton.add(JButtonRef(installationNode));
 		panelButton.add(createHorizontalSpacing());
-//		panelButton.add(test(installationNode));
+		panelButton.add(test(installationNode));
 		panelButton.setLayout(new BoxLayout(panelButton, BoxLayout.X_AXIS));
 		jPanel.add(panelButton);
 		
@@ -147,10 +149,13 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		table.getTableHeader().setReorderingAllowed(false);
 		table.getTableHeader().setResizingAllowed(false);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-		table.setModel(tableModel);
-		
+		table.setModel(DefTableModel);
 		table.setAutoCreateRowSorter(true);	//To make sorter automatically
 		table.getRowSorter().setSortKeys(Arrays.asList(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
+		
+		/*
+		 * To fix sort
+		 */
 //		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
 //		table.setRowSorter(sorter);
 //		for(int i=1; i<table.getColumnCount(); i++) {

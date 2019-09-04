@@ -78,13 +78,12 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	java.net.URL fileURL = getClass().getResource("code.txt");
 	
 	public void SetPosition() {
-//		final int selectedRow = view.table.getSelectedRow();
 		final int selectedRow = view.table.convertRowIndexToModel(view.table.getSelectedRow());
 		if(selectedRow  == -1) {
 			JOptionPane.showMessageDialog(null, "You have to select one row", "Message", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
-		final String nameKey = view.tableModel.getValueAt(selectedRow, 0).toString();
+		final String nameKey = view.DefTableModel.getValueAt(selectedRow, 0).toString();
 		apiProvider.getUserInterfaceAPI().getUserInteraction().getUserDefinedRobotPosition(new RobotPositionCallback() {
 			@Override
 			public void onOk(Pose pose, JointPositions jointPositions) {
@@ -95,8 +94,8 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 				}
 				
 				double[] data_double = pose.toArray(Length.Unit.M ,Angle.Unit.RAD);
-				for(int i=1; i<view.tableModel.getColumnCount(); i++) {
-					view.tableModel.setValueAt(data_double[i-1], selectedRow, i);
+				for(int i=1; i<view.DefTableModel.getColumnCount(); i++) {
+					view.DefTableModel.setValueAt(data_double[i-1], selectedRow, i);
 				}
 			}
 		});
@@ -104,12 +103,11 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	
 	public void onGotoButtonPressed() {
 		final int selectedRow = view.table.convertRowIndexToModel(view.table.getSelectedRow());
-//		final int selectedRow = view.table.getSelectedRow();
 		if(selectedRow  == -1) {
 			JOptionPane.showMessageDialog(null, "You have to select one row", "Message", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
-		String nameKey = view.tableModel.getValueAt(selectedRow, 0).toString();
+		String nameKey = view.DefTableModel.getValueAt(selectedRow, 0).toString();
 		if(model.isSet(nameKey) == true) {
 			Pose pose = model.get(nameKey, PoseDefaultValue);
 			apiProvider.getUserInterfaceAPI().getUserInteraction().getRobotMovement()
@@ -142,10 +140,7 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 			if(checkBeforeReadFile(fileGlobal) != true) return;
 			try {
 				removeAllKeys();
-				System.out.println("debug point 1");
-//				view.table.removeAll();
-//				view.tableModel.deleteAll();
-				System.out.println("debug point 2");
+				view.DefTableModel.setRowCount(0);
 				BufferedReader br = new BufferedReader(new FileReader(fileGlobal));
 				while((line = br.readLine()) != null) {
 					if(line.contains("p[")) {
@@ -153,27 +148,23 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 						String name = temp[0];
 						String valueString = temp[1].substring(2, temp[1].length() - 1);
 						temp = valueString.split(",");
-						Double[] valueDouble = new Double[6];
+						Double[] val = new Double[6];
 						for(int i=0; i<6; i++) {
-							valueDouble[i] = Double.valueOf(temp[i].trim());
+							val[i] = Double.valueOf(temp[i].trim());
 						}
-						model.set(name, poseFactory.createPose(valueDouble[0], valueDouble[1], valueDouble[2], 
-								valueDouble[3], valueDouble[4], valueDouble[5], Length.Unit.M, Angle.Unit.RAD));
-						System.out.println("debug point 3");
-						view.tableModel.addRow(name, valueDouble);
-						System.out.println("debug point 4");
+						model.set(name, poseFactory.createPose(val[0], val[1], val[2], val[3], val[4], val[5], Length.Unit.M, Angle.Unit.RAD));
+						view.DefTableModel.addRow(new Object[] {name,val[0], val[1], val[2],val[3],val[4],val[5]});
 					}else if(line.contains("[")) {
 						String[] temp = line.split("=");
 				    	String name = temp[0];
 				    	String valueString = temp[1].substring(1, temp[1].length()-1);
 				    	temp = valueString.split(",");
-				    	Double[] valueDouble = new Double[6];
+				    	Double[] val = new Double[6];
 				    	for (int i=0; i<6; i++) {
-				    		valueDouble[i] = Double.valueOf(temp[i].trim());
+				    		val[i] = Double.valueOf(temp[i].trim());
 				    	}
-				    	model.set("*"+name, jPosFactory.createJointPositions(valueDouble[0], valueDouble[1],
-				    			valueDouble[2], valueDouble[3], valueDouble[4], valueDouble[5], Angle.Unit.RAD));
-				    	view.tableModel.addRow(name, valueDouble);
+				    	model.set("*"+name, jPosFactory.createJointPositions(val[0], val[1],val[2], val[3], val[4], val[5], Angle.Unit.RAD));
+				    	view.DefTableModel.addRow(new Object[] {name,val[0], val[1], val[2],val[3],val[4],val[5]});
 					}
 				}
 				br.close();
@@ -198,7 +189,7 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	}
 	
 	public void testPrint() {
-		
+		view.DefTableModel.setRowCount(0);
 	}
 	
 	public File fileRead() {
