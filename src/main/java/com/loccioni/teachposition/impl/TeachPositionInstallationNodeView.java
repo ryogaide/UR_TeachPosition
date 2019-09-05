@@ -80,7 +80,7 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		panelButton.add(createHorizontalSpacing());
 		panelButton.add(JButtonRef(installationNode));
 		panelButton.add(createHorizontalSpacing());
-		panelButton.add(test(installationNode));
+//		panelButton.add(test(installationNode));
 		panelButton.setLayout(new BoxLayout(panelButton, BoxLayout.X_AXIS));
 		jPanel.add(panelButton);
 		

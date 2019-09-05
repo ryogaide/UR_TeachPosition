@@ -50,7 +50,9 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	public final String RobotA = "A";
 	public final String RobotB = "B";
 	public static final String RefValueA = "A_REF_VAR";
-	public static final String RefValueB = "A_REF_VAR";
+	public static final String RefValueB = "B_REF_VAR";
+	private static final String PositionFileA = "";
+	private static final String PositionFileB = "";
 	
 	private final TeachPositionInstallationNodeView view;
 	private final KeyboardInputFactory keyboardFactory;
