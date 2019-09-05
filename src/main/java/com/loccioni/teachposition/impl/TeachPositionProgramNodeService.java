@@ -13,7 +13,7 @@ public class TeachPositionProgramNodeService implements SwingProgramNodeService<
 
 	@Override
 	public String getId() {
-		return "TeachNode";
+		return "TeachNodeDev";
 	}
 
 	@Override
@@ -23,7 +23,7 @@ public class TeachPositionProgramNodeService implements SwingProgramNodeService<
 
 	@Override
 	public String getTitle(Locale locale) {
-		return "Teach Positions";
+		return "Teach Positions Dev";
 	}
 
 	@Override

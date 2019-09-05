@@ -38,6 +38,8 @@ public class TeachPositionProgramNodeContribution implements ProgramNodeContribu
 	private static final String ROBOT_KEY = "UR";
 	private static final String ROBOT_A = "UR A";
 	private static final String ROBOT_B = "UR B";
+	private static final String PositionFileA = "/home/ur/ursim/ursim-3.9.0.64176/programs/NAG3M_UrA.positions";
+	private static final String PositionFileB = "/home/ur/ursim/ursim-3.9.0.64176/programs/NAG3M_UrB.positions";
 	
 	public TeachPositionProgramNodeContribution(ProgramAPIProvider apiProvider, TeachPositionProgramNodeView view, DataModel model) {
 //		this.apiProvider = apiProvider;
@@ -109,6 +111,7 @@ public class TeachPositionProgramNodeContribution implements ProgramNodeContribu
 			String key = pKeysI.next();
 			Pose pose = poseMap.get(key);
 			writer.assign(key, pose.toString());
+			System.out.println(key + ":" + pose.toString());
 		}
 		
 		Set<String> jKeys = jointPosMap.keySet();
@@ -128,13 +131,13 @@ public class TeachPositionProgramNodeContribution implements ProgramNodeContribu
 	private String getFileName() {
 		String robot = "";
 		if (model.isSet(ROBOT_KEY)) robot = model.get(ROBOT_KEY, "");
-		if (robot.contentEquals(ROBOT_A)) return "/programs/NAG3M_UrA.positions";
-		if (robot.contentEquals(ROBOT_B)) return "/programs/NAG3M_UrB.positions";
+		if (robot.contentEquals(ROBOT_A)) return PositionFileA;
+		if (robot.contentEquals(ROBOT_B)) return PositionFileB;
 		return "";
 	}
 	
 	private void readPositionsFile() {
-		//System.out.println("*** READING POSITIONS FILE ***");
+		System.out.println("*** READING POSITIONS FILE ***");
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(getFileName())));
 			while (true) {

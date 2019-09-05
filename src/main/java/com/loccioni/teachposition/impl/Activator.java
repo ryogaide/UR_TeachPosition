@@ -1,6 +1,8 @@
 package com.loccioni.teachposition.impl;
 
 import com.ur.urcap.api.contribution.installation.swing.SwingInstallationNodeService;
+import com.ur.urcap.api.contribution.program.swing.SwingProgramNodeService;
+import com.loccioni.teachposition.impl.TeachPositionProgramNodeService;
 import com.loccioni.teachposition.impl.TeachPositionInstallationNodeService;
 
 import org.osgi.framework.BundleActivator;
@@ -14,7 +16,8 @@ public class Activator implements BundleActivator {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		context.registerService(SwingInstallationNodeService.class, new TeachPositionInstallationNodeService(), null);
-//		System.out.println("Activator says Hello World!");
+		context.registerService(SwingProgramNodeService.class, new TeachPositionProgramNodeService(), null);
+		System.out.println("Activator says Hello World!");
 	}
 
 	@Override

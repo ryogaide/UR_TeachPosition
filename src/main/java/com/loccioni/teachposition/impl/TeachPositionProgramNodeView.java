@@ -35,7 +35,7 @@ public class TeachPositionProgramNodeView implements SwingProgramNodeView<TeachP
 		group.add(UrA);
 		group.add(UrB);
 		
-		panel.add(createDescription("Select the robot"));
+		panel.add(createDescription("Select the robot DEV"));
 		panel.add(createSpacer(0, 20));
 		
 		UrA.addActionListener(new ActionListener() {

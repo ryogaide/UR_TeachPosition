@@ -19,7 +19,7 @@ public class TeachPositionInstallationNodeService
 
 	@Override
 	public String getTitle(Locale locale) {
-		return "Teach Position";
+		return "Teach Position Dev";
 	}
 
 	@Override

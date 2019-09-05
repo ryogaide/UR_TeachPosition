@@ -51,8 +51,8 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	public final String RobotB = "B";
 	public static final String RefValueA = "A_REF_VAR";
 	public static final String RefValueB = "B_REF_VAR";
-	private static final String PositionFileA = "";
-	private static final String PositionFileB = "";
+	private static final String PositionFileA = "/home/ur/ursim/ursim-3.9.0.64176/programs/NAG3M_UrA.positions";
+	private static final String PositionFileB = "/home/ur/ursim/ursim-3.9.0.64176/programs/NAG3M_UrB.positions";
 	
 	private final TeachPositionInstallationNodeView view;
 	private final KeyboardInputFactory keyboardFactory;
@@ -139,51 +139,61 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 		filechooser.setFileFilter(filter);
 		
 		int selected = filechooser.showOpenDialog(null);
-		if(selected == JFileChooser.APPROVE_OPTION) {
-			fileGlobal =  filechooser.getSelectedFile();
-			if(checkBeforeReadFile(fileGlobal) != true) return;
-			try {
-				removeAllKeys();
-				view.DefTableModel.setRowCount(0);
-				BufferedReader br = new BufferedReader(new FileReader(fileGlobal));
-				while((line = br.readLine()) != null) {
-					if(line.contains("p[")) {
-						String[] temp = line.split("=");
-						String name = temp[0];
-						String valueString = temp[1].substring(2, temp[1].length() - 1);
-						temp = valueString.split(",");
-						Double[] val = new Double[6];
-						for(int i=0; i<6; i++) {
-							val[i] = Double.valueOf(temp[i].trim());
-						}
-						model.set(name, poseFactory.createPose(val[0], val[1], val[2], val[3], val[4], val[5], Length.Unit.M, Angle.Unit.RAD));
-						view.DefTableModel.addRow(new Object[] {name,df.format(val[0]), df.format(val[1]), df.format(val[2]), 
-								df.format(val[3]), df.format(val[4]), df.format(val[5])});
-					}else if(line.contains("[")) {
-						String[] temp = line.split("=");
-				    	String name = temp[0];
-				    	String valueString = temp[1].substring(1, temp[1].length()-1);
-				    	temp = valueString.split(",");
-				    	Double[] val = new Double[6];
-				    	for (int i=0; i<6; i++) {
-				    		val[i] = Double.valueOf(temp[i].trim());
-				    	}
-				    	model.set("*"+name, jPosFactory.createJointPositions(val[0], val[1],val[2], val[3], val[4], val[5], Angle.Unit.RAD));
-				    	view.DefTableModel.addRow(new Object[] {name,df.format(val[0]), df.format(val[1]), df.format(val[2]), 
-								df.format(val[3]), df.format(val[4]), df.format(val[5])});
-					}
-				}
-				br.close();
-			} catch (FileNotFoundException err) {
-				System.out.println(err);
-			} catch (IOException err) {
-				System.out.println(err);
-			}
-		}else if(selected == JFileChooser.CANCEL_OPTION) {
-			System.out.println("CANCEL");
-		}else if(selected == JFileChooser.ERROR_OPTION) {
-			System.out.println("ERROR");
+//		if(selected == JFileChooser.APPROVE_OPTION) {
+		File fileDebug =  filechooser.getSelectedFile();
+		System.out.println("name: " + fileDebug.getName());
+		System.out.println("path: " + fileDebug.getPath());
+		
+		if(selectedRobot == RobotA) {
+			fileGlobal = new File(PositionFileA);
+		}else if(selectedRobot == RobotB) {
+			fileGlobal = new File(PositionFileB);
 		}
+		if(checkBeforeReadFile(fileGlobal) != true){
+			JOptionPane.showMessageDialog(null, "Uncorrect file name", "Message", JOptionPane.INFORMATION_MESSAGE);
+		};
+		try {
+			removeAllKeys();
+			view.DefTableModel.setRowCount(0);
+			BufferedReader br = new BufferedReader(new FileReader(fileGlobal));
+			while((line = br.readLine()) != null) {
+				if(line.contains("p[")) {
+					String[] temp = line.split("=");
+					String name = temp[0];
+					String valueString = temp[1].substring(2, temp[1].length() - 1);
+					temp = valueString.split(",");
+					Double[] val = new Double[6];
+					for(int i=0; i<6; i++) {
+						val[i] = Double.valueOf(temp[i].trim());
+					}
+					model.set(name, poseFactory.createPose(val[0], val[1], val[2], val[3], val[4], val[5], Length.Unit.M, Angle.Unit.RAD));
+					view.DefTableModel.addRow(new Object[] {name,df.format(val[0]), df.format(val[1]), df.format(val[2]), 
+							df.format(val[3]), df.format(val[4]), df.format(val[5])});
+				}else if(line.contains("[")) {
+					String[] temp = line.split("=");
+			    	String name = temp[0];
+			    	String valueString = temp[1].substring(1, temp[1].length()-1);
+			    	temp = valueString.split(",");
+			    	Double[] val = new Double[6];
+			    	for (int i=0; i<6; i++) {
+			    		val[i] = Double.valueOf(temp[i].trim());
+			    	}
+			    	model.set("*"+name, jPosFactory.createJointPositions(val[0], val[1],val[2], val[3], val[4], val[5], Angle.Unit.RAD));
+			    	view.DefTableModel.addRow(new Object[] {name,df.format(val[0]), df.format(val[1]), df.format(val[2]), 
+							df.format(val[3]), df.format(val[4]), df.format(val[5])});
+				}
+			}
+			br.close();
+		} catch (FileNotFoundException err) {
+			System.out.println(err);
+		} catch (IOException err) {
+			System.out.println(err);
+		}
+//		}else if(selected == JFileChooser.CANCEL_OPTION) {
+//			System.out.println("CANCEL");
+//		}else if(selected == JFileChooser.ERROR_OPTION) {
+//			System.out.println("ERROR");
+//		}
 	}
 	
 	private void removeAllKeys() {
@@ -313,7 +323,8 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 			String key = keysI.next();
 			if (!key.startsWith("*")) { 	// pose
 				double[] oldPose = model.get(key, PoseDefaultValue).toArray(Length.Unit.M, Angle.Unit.RAD);
-				double[] newPose = UrPose.pose_trans(newRef.toArray(Length.Unit.M, Angle.Unit.RAD), UrPose.pose_trans(UrPose.pose_inv(oldRef.toArray(Length.Unit.M, Angle.Unit.RAD)), oldPose));
+				double[] newPose = UrPose.pose_trans(newRef.toArray(Length.Unit.M, Angle.Unit.RAD), 
+						UrPose.pose_trans(UrPose.pose_inv(oldRef.toArray(Length.Unit.M, Angle.Unit.RAD)), oldPose));
 				model.set(key, poseFactory.createPose(newPose[0], newPose[1], newPose[2], newPose[3], newPose[4], newPose[5], Length.Unit.M, Angle.Unit.RAD));
 			}
 		}
@@ -337,7 +348,8 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	
 	private String jointPositionsToString(JointPositions jPos) {
 		JointPosition[] jP = jPos.getAllJointPositions();
-		return "["+jP[0].getPosition(Angle.Unit.RAD)+","+jP[1].getPosition(Angle.Unit.RAD)+","+jP[2].getPosition(Angle.Unit.RAD)+","+jP[3].getPosition(Angle.Unit.RAD)+","+jP[4].getPosition(Angle.Unit.RAD)+","+jP[5].getPosition(Angle.Unit.RAD)+"]";
+		return "["+jP[0].getPosition(Angle.Unit.RAD)+","+jP[1].getPosition(Angle.Unit.RAD)+","+jP[2].getPosition(Angle.Unit.RAD)+","+
+				jP[3].getPosition(Angle.Unit.RAD)+","+jP[4].getPosition(Angle.Unit.RAD)+","+jP[5].getPosition(Angle.Unit.RAD)+"]";
 	}
 
 	@Override
