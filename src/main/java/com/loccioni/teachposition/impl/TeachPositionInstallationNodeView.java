@@ -27,10 +27,11 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 
 	private final Style style;
 	private JTextField jTextField = new JTextField();
-	public JTable table = new JTable();
-	
 	private final String[] columns = {"Names", "X[m]", "Y[m]", "Z[m]", "RX[rad]", "RY[rad]", "RZ[rad]"};
 	public DefaultTableModel DefTableModel = new DefaultTableModel(columns, 0);
+	
+	
+	public JTable table = new JTable();
 	
 	public TeachPositionInstallationNodeView(Style style) {
 		this.style = style;
@@ -145,6 +146,7 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 	
 	private JScrollPane varTable() {
 		JScrollPane sp = new JScrollPane(table);
+		sp.getPreferredSize();
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getTableHeader().setReorderingAllowed(false);
 		table.getTableHeader().setResizingAllowed(false);
@@ -152,6 +154,7 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		table.setModel(DefTableModel);
 		table.setAutoCreateRowSorter(true);	//To make sorter automatically
 		table.getRowSorter().setSortKeys(Arrays.asList(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
+		table.setDefaultEditor(Object.class, null);
 		
 		/*
 		 * To fix sort

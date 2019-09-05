@@ -132,25 +132,30 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	}
 	
 	public void onUrSelected(JRadioButton radio) {
+
+//		JFileChooser filechooser = new JFileChooser();
+//		FileFilter filter = new FileNameExtensionFilter("Position file(.variables)", "variables");
+//		filechooser.addChoosableFileFilter(filter);
+//		filechooser.setFileFilter(filter);
+//		
+//		int selected = filechooser.showOpenDialog(null);
+////		if(selected == JFileChooser.APPROVE_OPTION) {
+//		File fileDebug =  filechooser.getSelectedFile();
+//		System.out.println("name: " + fileDebug.getName());
+//		System.out.println("path: " + fileDebug.getPath());
+		if(selectedRobot != "") {
+			fileWrite();
+		}
 		selectedRobot = radio.getName();
-		JFileChooser filechooser = new JFileChooser();
-		FileFilter filter = new FileNameExtensionFilter("Position file(.variables)", "variables");
-		filechooser.addChoosableFileFilter(filter);
-		filechooser.setFileFilter(filter);
-		
-		int selected = filechooser.showOpenDialog(null);
-//		if(selected == JFileChooser.APPROVE_OPTION) {
-		File fileDebug =  filechooser.getSelectedFile();
-		System.out.println("name: " + fileDebug.getName());
-		System.out.println("path: " + fileDebug.getPath());
-		
 		if(selectedRobot == RobotA) {
 			fileGlobal = new File(PositionFileA);
 		}else if(selectedRobot == RobotB) {
 			fileGlobal = new File(PositionFileB);
+		}else {
+			JOptionPane.showMessageDialog(null,"You have to selecet robot" , "Message",JOptionPane.INFORMATION_MESSAGE);
 		}
 		if(checkBeforeReadFile(fileGlobal) != true){
-			JOptionPane.showMessageDialog(null, "Uncorrect file name", "Message", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Uncorrect file name or path", "Message", JOptionPane.INFORMATION_MESSAGE);
 		};
 		try {
 			removeAllKeys();
@@ -252,7 +257,7 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 			}catch(IOException e3) {
 				return;
 			}
-			JOptionPane.showMessageDialog(null, "Succeeded", "Message", JOptionPane.INFORMATION_MESSAGE);
+//			JOptionPane.showMessageDialog(null, "Succeeded", "Message", JOptionPane.INFORMATION_MESSAGE);
 		}else if(option == JOptionPane.NO_OPTION) {
 //			JOptionPane.showMessageDialog(null, "Failed", "Message", JOptionPane.INFORMATION_MESSAGE);
 			return;
@@ -359,7 +364,7 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 
 	@Override
 	public void closeView() {
-
+		fileWrite();
 	}
 
 	public boolean isDefined() {
