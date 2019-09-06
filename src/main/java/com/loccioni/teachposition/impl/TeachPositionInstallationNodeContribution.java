@@ -45,7 +45,7 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 
 	private static final String POPUPTITLE_KEY = "popuptitle";
 	private static final String DEFAULT_VALUE = "Teach Position";
-	private String selectedRobot = "";	//To save which Robot we chose
+	private String selectedRobot = null;	//To save which Robot we chose
 	
 	public final String RobotA = "A";
 	public final String RobotB = "B";
@@ -63,7 +63,7 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	private final JointPositionFactory jPosFactory;
 	private final Pose PoseDefaultValue;
 	private final JointPositions jPosDefaultValue;
-	private File fileGlobal;
+	private File fileGlobal = null;
 	DecimalFormat df = new DecimalFormat("0.0000");
 	
 	public TeachPositionInstallationNodeContribution(InstallationAPIProvider apiProvider, DataModel model, 
@@ -78,8 +78,6 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 		this.jPosDefaultValue = jPosFactory.createJointPositions(0, 0, 0, 0, 0, 0, Angle.Unit.RAD);
 		
 	}
-	
-	java.net.URL fileURL = getClass().getResource("code.txt");
 	
 	public void SetPosition() {
 		if(view.table.getSelectedRow() == -1) {
@@ -96,7 +94,7 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 				}else if(model.isSet(nameKey) == false) {
 					model.set("*" + nameKey, jointPositions);
 				}
-				
+				System.out.println("AFTER " + nameKey + ": " + pose.toString());
 				double[] data_double = pose.toArray(Length.Unit.M ,Angle.Unit.RAD);
 				for(int i=1; i<view.DefTableModel.getColumnCount(); i++) {
 					view.DefTableModel.setValueAt(df.format(data_double[i-1]), selectedRow, i);
@@ -114,16 +112,16 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 		String nameKey = view.DefTableModel.getValueAt(selectedRow, 0).toString();
 		if(model.isSet(nameKey) == true) {
 			Pose pose = model.get(nameKey, PoseDefaultValue);
-			apiProvider.getUserInterfaceAPI().getUserInteraction().getRobotMovement()
-			.requestUserToMoveRobot(pose, new RobotMovementCallback() {
+			System.out.println("BEFORE " + nameKey + ": " + pose.toString());
+			apiProvider.getUserInterfaceAPI().getUserInteraction().getRobotMovement().requestUserToMoveRobot(pose, new RobotMovementCallback() {
 				@Override
 				public void onComplete(MovementCompleteEvent event) {
 				}
 			});
+			
 		}else if(model.isSet(nameKey) == false){
 			JointPositions jPos = model.get("*" + nameKey, jPosDefaultValue);
-			apiProvider.getUserInterfaceAPI().getUserInteraction().getRobotMovement()
-			.requestUserToMoveRobot(jPos, new RobotMovementCallback() {
+			apiProvider.getUserInterfaceAPI().getUserInteraction().getRobotMovement().requestUserToMoveRobot(jPos, new RobotMovementCallback() {
 				@Override
 				public void onComplete(MovementCompleteEvent event) {
 				}
@@ -143,9 +141,6 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 //		File fileDebug =  filechooser.getSelectedFile();
 //		System.out.println("name: " + fileDebug.getName());
 //		System.out.println("path: " + fileDebug.getPath());
-		if(selectedRobot != "") {
-			fileWrite();
-		}
 		selectedRobot = radio.getName();
 		if(selectedRobot == RobotA) {
 			fileGlobal = new File(PositionFileA);
@@ -167,25 +162,23 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 					String name = temp[0];
 					String valueString = temp[1].substring(2, temp[1].length() - 1);
 					temp = valueString.split(",");
-					Double[] val = new Double[6];
+					double[] val = new double[6];
 					for(int i=0; i<6; i++) {
 						val[i] = Double.valueOf(temp[i].trim());
 					}
 					model.set(name, poseFactory.createPose(val[0], val[1], val[2], val[3], val[4], val[5], Length.Unit.M, Angle.Unit.RAD));
-					view.DefTableModel.addRow(new Object[] {name,df.format(val[0]), df.format(val[1]), df.format(val[2]), 
-							df.format(val[3]), df.format(val[4]), df.format(val[5])});
+					Data2Table(name, val);
 				}else if(line.contains("[")) {
 					String[] temp = line.split("=");
 			    	String name = temp[0];
 			    	String valueString = temp[1].substring(1, temp[1].length()-1);
 			    	temp = valueString.split(",");
-			    	Double[] val = new Double[6];
+			    	double[] val = new double[6];
 			    	for (int i=0; i<6; i++) {
 			    		val[i] = Double.valueOf(temp[i].trim());
 			    	}
 			    	model.set("*"+name, jPosFactory.createJointPositions(val[0], val[1],val[2], val[3], val[4], val[5], Angle.Unit.RAD));
-			    	view.DefTableModel.addRow(new Object[] {name,df.format(val[0]), df.format(val[1]), df.format(val[2]), 
-							df.format(val[3]), df.format(val[4]), df.format(val[5])});
+			    	Data2Table(name, val);
 				}
 			}
 			br.close();
@@ -231,37 +224,41 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	}
 	
 	public void fileWrite() {
-		int option = JOptionPane.showConfirmDialog(null, "Overwrite the file : " + fileGlobal.getName() + "?",
-				"Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-		if(option == JOptionPane.YES_OPTION) {
-			try {
-				BufferedWriter bw = new BufferedWriter(new FileWriter(fileGlobal));
-				Set<String> keySet = model.getKeys();
-				ArrayList<String> keyList = new ArrayList<String>(keySet);
-				Collections.sort(keyList);	//need or no?
-				Iterator<String> keysI = keyList.iterator();
-				
-				while(keysI.hasNext()) {
-					String keyName = keysI.next();
-					if (keyName.startsWith("*")) { 	// joint positions
-						JointPositions jPos = model.get(keyName, jPosDefaultValue);
-						bw.write(keyName.substring(1) + "=" + jointPositionsToString(jPos));
-//						System.out.println(keyName.substring(1) + "=" + jPos.toString());
-					} else { 					// pose
-						Pose pose = model.get(keyName, PoseDefaultValue);
-						bw.append(keyName + "=" + pose.toString());
-					}
-					bw.newLine();
-				}
-				bw.close();
-			}catch(IOException e3) {
-				return;
-			}
-//			JOptionPane.showMessageDialog(null, "Succeeded", "Message", JOptionPane.INFORMATION_MESSAGE);
-		}else if(option == JOptionPane.NO_OPTION) {
-//			JOptionPane.showMessageDialog(null, "Failed", "Message", JOptionPane.INFORMATION_MESSAGE);
+//		int option = JOptionPane.showConfirmDialog(null, "Overwrite the file : " + fileGlobal.getName() + "?",
+//				"Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+//		if(option == JOptionPane.YES_OPTION) {
+		if(fileGlobal == null || selectedRobot == null) {
 			return;
 		}
+		
+		try {
+			BufferedWriter bw = new BufferedWriter(new FileWriter(fileGlobal));
+			Set<String> keySet = model.getKeys();
+			ArrayList<String> keyList = new ArrayList<String>(keySet);
+			Collections.sort(keyList);	//need or no?
+			Iterator<String> keysI = keyList.iterator();
+			
+			while(keysI.hasNext()) {
+				String keyName = keysI.next();
+				if (keyName.startsWith("*")) { 	// joint positions
+					JointPositions jPos = model.get(keyName, jPosDefaultValue);
+					bw.write(keyName.substring(1) + "=" + jointPositionsToString(jPos));
+//						System.out.println(keyName.substring(1) + "=" + jPos.toString());
+				} else { 					// pose
+					Pose pose = model.get(keyName, PoseDefaultValue);
+					bw.append(keyName + "=" + pose.toString());
+				}
+				bw.newLine();
+			}
+			bw.close();
+		}catch(IOException e3) {
+			return;
+		}
+//			JOptionPane.showMessageDialog(null, "Succeeded", "Message", JOptionPane.INFORMATION_MESSAGE);
+//		}else if(option == JOptionPane.NO_OPTION) {
+////			JOptionPane.showMessageDialog(null, "Failed", "Message", JOptionPane.INFORMATION_MESSAGE);
+//			return;
+//		}
 	}
 	
 	public void onRefButtonPressed() {
@@ -319,27 +316,43 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 			System.out.println("Same reference: no need to update!");
 			return;
 		}
-		System.out.println("Reference was changed!");
-		Set<String> keySet = model.getKeys();
-		ArrayList<String> keyList = new ArrayList<String>(keySet);
-		Collections.sort(keyList);
-		Iterator<String> keysI = keyList.iterator();
-		while (keysI.hasNext()) {
-			String key = keysI.next();
-			if (!key.startsWith("*")) { 	// pose
-				double[] oldPose = model.get(key, PoseDefaultValue).toArray(Length.Unit.M, Angle.Unit.RAD);
-				double[] newPose = UrPose.pose_trans(newRef.toArray(Length.Unit.M, Angle.Unit.RAD), 
-						UrPose.pose_trans(UrPose.pose_inv(oldRef.toArray(Length.Unit.M, Angle.Unit.RAD)), oldPose));
-				model.set(key, poseFactory.createPose(newPose[0], newPose[1], newPose[2], newPose[3], newPose[4], newPose[5], Length.Unit.M, Angle.Unit.RAD));
+		
+		int option = JOptionPane.showConfirmDialog(null, "New Referece is set\n change all positions?",
+				"Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if(option == JOptionPane.YES_OPTION) {
+			view.DefTableModel.setRowCount(0);
+			System.out.println("Reference was changed!");
+			Set<String> keySet = model.getKeys();
+			ArrayList<String> keyList = new ArrayList<String>(keySet);
+			Collections.sort(keyList);
+			Iterator<String> keysI = keyList.iterator();
+			while (keysI.hasNext()) {
+				String key = keysI.next();
+				if (!key.startsWith("*")) { 	// pose
+					double[] oldPose = model.get(key, PoseDefaultValue).toArray(Length.Unit.M, Angle.Unit.RAD);
+					double[] newPose = UrPose.pose_trans(newRef.toArray(Length.Unit.M, Angle.Unit.RAD), 
+							UrPose.pose_trans(UrPose.pose_inv(oldRef.toArray(Length.Unit.M, Angle.Unit.RAD)), oldPose));
+					model.set(key, poseFactory.createPose(newPose[0], newPose[1], newPose[2], newPose[3], newPose[4], newPose[5], Length.Unit.M, Angle.Unit.RAD));
+					Data2Table(key, newPose);
+				}
 			}
+			double[] ref = newRef.toArray(Length.Unit.M, Angle.Unit.RAD);
+			if (selectedRobot.contentEquals("A")) {
+				model.set(RefValueA, poseFactory.createPose(ref[0], ref[1], ref[2], ref[3], ref[4], ref[5], Length.Unit.M, Angle.Unit.RAD));
+				Data2Table(RefValueA, ref);
+			}
+			if (selectedRobot.contentEquals("B")) {
+				model.set(RefValueB, poseFactory.createPose(ref[0], ref[1], ref[2], ref[3], ref[4], ref[5], Length.Unit.M, Angle.Unit.RAD));
+				Data2Table(RefValueB, ref);
+			}
+		}else {
+			return;
 		}
-		double[] ref = newRef.toArray(Length.Unit.M, Angle.Unit.RAD);
-		if (selectedRobot.contentEquals("A")) {
-			model.set(RefValueA, poseFactory.createPose(ref[0], ref[1], ref[2], ref[3], ref[4], ref[5], Length.Unit.M, Angle.Unit.RAD));
-		}
-		if (selectedRobot.contentEquals("B")) {
-			model.set(RefValueB, poseFactory.createPose(ref[0], ref[1], ref[2], ref[3], ref[4], ref[5], Length.Unit.M, Angle.Unit.RAD));
-		}
+	}
+	
+	private void Data2Table(String name, double val[]) {
+		view.DefTableModel.addRow(new Object[] {name,df.format(val[0]), df.format(val[1]), df.format(val[2]), 
+				df.format(val[3]), df.format(val[4]), df.format(val[5])});
 	}
 	
 	private boolean checkBeforeReadFile(File file){

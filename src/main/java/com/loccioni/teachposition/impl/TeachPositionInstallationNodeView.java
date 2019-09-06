@@ -72,20 +72,20 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		panelSelect.setLayout(new BoxLayout(panelSelect, BoxLayout.Y_AXIS));
 		panelButton.add(panelSelect);
 		
-		panelButton.add(createHorizontalSpacing());
+		panelButton.add(createHorizontalSpacing(5));
 		panelButton.add(JButtonGoTo(installationNode));
-		panelButton.add(createHorizontalSpacing());
+		panelButton.add(createHorizontalSpacing(5));
 		panelButton.add(JButtonSet(installationNode));
-		panelButton.add(createHorizontalSpacing());
-		panelButton.add(JFileWriter(installationNode));
-		panelButton.add(createHorizontalSpacing());
+		panelButton.add(createHorizontalSpacing(5));
+//		panelButton.add(JFileWriter(installationNode));
+//		panelButton.add(createHorizontalSpacing(3));
 		panelButton.add(JButtonRef(installationNode));
-		panelButton.add(createHorizontalSpacing());
+		panelButton.add(createHorizontalSpacing(5));
 //		panelButton.add(test(installationNode));
 		panelButton.setLayout(new BoxLayout(panelButton, BoxLayout.X_AXIS));
 		jPanel.add(panelButton);
 		
-		jPanel.add(createVerticalSpacing());
+		jPanel.add(createVerticalSpacing(2));
 		jPanel.add(varTable());
 	}
 	
@@ -170,12 +170,12 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		return sp;
 	}
 	
-	private Component createHorizontalSpacing() {
-		return Box.createRigidArea(new Dimension(style.getHorizontalSpacing(), 0));
+	private Component createHorizontalSpacing(int multiplier) {
+		return Box.createRigidArea(new Dimension(style.getHorizontalSpacing() * multiplier, 0));
 	}
 
-	private Component createVerticalSpacing() {
-		return Box.createRigidArea(new Dimension(0, style.getVerticalSpacing()));
+	private Component createVerticalSpacing(int multiplier) {
+		return Box.createRigidArea(new Dimension(0, style.getVerticalSpacing() * multiplier));
 	}
 	
 	public void setPopupText(String t) {
