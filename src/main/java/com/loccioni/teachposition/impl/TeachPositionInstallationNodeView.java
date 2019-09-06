@@ -15,11 +15,13 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.*;
 import java.util.Arrays;
 
@@ -40,39 +42,42 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 	@Override
 	public void buildUI(JPanel jPanel, final TeachPositionInstallationNodeContribution installationNode) {
 		jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.Y_AXIS));
+//		jPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		
 		
 		JPanel panelButton = new JPanel();
 		panelButton.setLayout(new BoxLayout(panelButton, BoxLayout.X_AXIS));
+//		panelButton.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
-		JPanel panelSelect = new JPanel();
-		ButtonGroup group = new ButtonGroup();
-		JRadioButton UrA = new JRadioButton("UR A (ext)");
-		JRadioButton UrB = new JRadioButton("UR B (int)");
-		group.add(UrA);
-		group.add(UrB);
-		UrA.setName(installationNode.RobotA);
-		UrB.setName(installationNode.RobotB);
-		UrA.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JRadioButton radio = (JRadioButton) e.getSource();
-				installationNode.onUrSelected(radio);
-			}
-		});
-		UrB.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JRadioButton radio = (JRadioButton) e.getSource();
-				installationNode.onUrSelected(radio);
-			}
-		});
+//		JPanel panelSelect = new JPanel();
+//		ButtonGroup group = new ButtonGroup();
+//		JRadioButton UrA = new JRadioButton("UR A (ext)");
+//		JRadioButton UrB = new JRadioButton("UR B (int)");
+//		group.add(UrA);
+//		group.add(UrB);
+//		UrA.setName(installationNode.RobotA);
+//		UrB.setName(installationNode.RobotB);
+//		UrA.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				JRadioButton radio = (JRadioButton) e.getSource();
+//				installationNode.onUrSelected(radio);
+//			}
+//		});
+//		UrB.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				JRadioButton radio = (JRadioButton) e.getSource();
+//				installationNode.onUrSelected(radio);
+//			}
+//		});
+//		
+//		panelSelect.add(UrA);
+//		panelSelect.add(UrB);
+//		panelSelect.setLayout(new BoxLayout(panelSelect, BoxLayout.Y_AXIS));
+//		panelButton.add(panelSelect);
 		
-		panelSelect.add(UrA);
-		panelSelect.add(UrB);
-		panelSelect.setLayout(new BoxLayout(panelSelect, BoxLayout.Y_AXIS));
-		panelButton.add(panelSelect);
-		
-		panelButton.add(createHorizontalSpacing(5));
+//		panelButton.add(createHorizontalSpacing(5));
 		panelButton.add(JButtonGoTo(installationNode));
 		panelButton.add(createHorizontalSpacing(5));
 		panelButton.add(JButtonSet(installationNode));
@@ -81,8 +86,10 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 //		panelButton.add(createHorizontalSpacing(3));
 		panelButton.add(JButtonRef(installationNode));
 		panelButton.add(createHorizontalSpacing(5));
-//		panelButton.add(test(installationNode));
+		panelButton.add(test(installationNode));
 		panelButton.setLayout(new BoxLayout(panelButton, BoxLayout.X_AXIS));
+		
+//		jPanel.add(createVerticalSpacing(2));
 		jPanel.add(panelButton);
 		
 		jPanel.add(createVerticalSpacing(2));
@@ -168,6 +175,20 @@ public class TeachPositionInstallationNodeView implements SwingInstallationNodeV
 		TableColumn column = columnModel.getColumn(0);
 		column.setPreferredWidth(150);
 		return sp;
+	}
+	
+	private Box createDescription(String desc) {
+		if(desc == null) {
+			System.out.println("Box string is null");
+		}
+		System.out.println("moving" + desc);
+		Box box = Box.createHorizontalBox();
+		box.setAlignmentX(Component.LEFT_ALIGNMENT);
+		
+		JLabel label = new JLabel(desc);
+		
+		box.add(label);
+		return box;
 	}
 	
 	private Component createHorizontalSpacing(int multiplier) {

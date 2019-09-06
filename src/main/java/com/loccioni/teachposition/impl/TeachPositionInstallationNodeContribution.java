@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -51,8 +52,9 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	public final String RobotB = "B";
 	public static final String RefValueA = "A_REF_VAR";
 	public static final String RefValueB = "B_REF_VAR";
-	private static final String PositionFileA = "/home/ur/ursim/ursim-3.9.0.64176/programs/NAG3M_UrA.positions";
-	private static final String PositionFileB = "/home/ur/ursim/ursim-3.9.0.64176/programs/NAG3M_UrB.positions";
+//	private static final String PositionFileA = "/programs/NAG3M_UrA.positions";
+//	private static final String PositionFileB = "/programs/NAG3M_UrB.positions";
+	private static final String FilePath = "/programs/";
 	
 	private final TeachPositionInstallationNodeView view;
 	private final KeyboardInputFactory keyboardFactory;
@@ -94,7 +96,6 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 				}else if(model.isSet(nameKey) == false) {
 					model.set("*" + nameKey, jointPositions);
 				}
-				System.out.println("AFTER " + nameKey + ": " + pose.toString());
 				double[] data_double = pose.toArray(Length.Unit.M ,Angle.Unit.RAD);
 				for(int i=1; i<view.DefTableModel.getColumnCount(); i++) {
 					view.DefTableModel.setValueAt(df.format(data_double[i-1]), selectedRow, i);
@@ -112,7 +113,6 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 		String nameKey = view.DefTableModel.getValueAt(selectedRow, 0).toString();
 		if(model.isSet(nameKey) == true) {
 			Pose pose = model.get(nameKey, PoseDefaultValue);
-			System.out.println("BEFORE " + nameKey + ": " + pose.toString());
 			apiProvider.getUserInterfaceAPI().getUserInteraction().getRobotMovement().requestUserToMoveRobot(pose, new RobotMovementCallback() {
 				@Override
 				public void onComplete(MovementCompleteEvent event) {
@@ -129,6 +129,49 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 		}
 	}
 	
+	public void onUrSelectedAuto() {
+		fileGlobal = fileSearch();
+
+		if(checkBeforeReadFile(fileGlobal) != true){
+			JOptionPane.showMessageDialog(null, "Uncorrect file name or path", "Message", JOptionPane.INFORMATION_MESSAGE);
+		};
+		try {
+			removeAllKeys();
+			view.DefTableModel.setRowCount(0);
+			BufferedReader br = new BufferedReader(new FileReader(fileGlobal));
+			while((line = br.readLine()) != null) {
+				if(line.contains("p[")) {
+					String[] temp = line.split("=");
+					String name = temp[0];
+					String valueString = temp[1].substring(2, temp[1].length() - 1);
+					temp = valueString.split(",");
+					double[] val = new double[6];
+					for(int i=0; i<6; i++) {
+						val[i] = Double.valueOf(temp[i].trim());
+					}
+					model.set(name, poseFactory.createPose(val[0], val[1], val[2], val[3], val[4], val[5], Length.Unit.M, Angle.Unit.RAD));
+					Data2Table(name, val);
+				}else if(line.contains("[")) {
+					String[] temp = line.split("=");
+			    	String name = temp[0];
+			    	String valueString = temp[1].substring(1, temp[1].length()-1);
+			    	temp = valueString.split(",");
+			    	double[] val = new double[6];
+			    	for (int i=0; i<6; i++) {
+			    		val[i] = Double.valueOf(temp[i].trim());
+			    	}
+			    	model.set("*"+name, jPosFactory.createJointPositions(val[0], val[1],val[2], val[3], val[4], val[5], Angle.Unit.RAD));
+			    	Data2Table(name, val);
+				}
+			}
+			br.close();
+		} catch (FileNotFoundException err) {
+			System.out.println(err);
+		} catch (IOException err) {
+			System.out.println(err);
+		}
+	}
+	
 	public void onUrSelected(JRadioButton radio) {
 
 //		JFileChooser filechooser = new JFileChooser();
@@ -141,14 +184,14 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 //		File fileDebug =  filechooser.getSelectedFile();
 //		System.out.println("name: " + fileDebug.getName());
 //		System.out.println("path: " + fileDebug.getPath());
-		selectedRobot = radio.getName();
-		if(selectedRobot == RobotA) {
-			fileGlobal = new File(PositionFileA);
-		}else if(selectedRobot == RobotB) {
-			fileGlobal = new File(PositionFileB);
-		}else {
-			JOptionPane.showMessageDialog(null,"You have to selecet robot" , "Message",JOptionPane.INFORMATION_MESSAGE);
-		}
+//		selectedRobot = radio.getName();
+//		if(selectedRobot == RobotA) {
+//			fileGlobal = new File(PositionFileA);
+//		}else if(selectedRobot == RobotB) {
+//			fileGlobal = new File(PositionFileB);
+//		}else {
+//			JOptionPane.showMessageDialog(null,"You have to select robot" , "Message",JOptionPane.INFORMATION_MESSAGE);
+//		}
 		if(checkBeforeReadFile(fileGlobal) != true){
 			JOptionPane.showMessageDialog(null, "Uncorrect file name or path", "Message", JOptionPane.INFORMATION_MESSAGE);
 		};
@@ -203,10 +246,11 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	}
 	
 	public void testPrint() {
-		view.DefTableModel.setRowCount(0);
+		fileGlobal = fileSearch();
+		System.out.println(fileGlobal);
 	}
 	
-	public File fileRead() {
+	public File fileChoose() {
 		JFileChooser filechooser = new JFileChooser();
 		FileFilter filter = new FileNameExtensionFilter("Position file(.variables)", "variables");
 		filechooser.addChoosableFileFilter(filter);
@@ -219,6 +263,31 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 			System.out.println("CANCEL");
 		}else if(selected == JFileChooser.ERROR_OPTION) {
 			System.out.println("ERROR");
+		}
+		return null;
+	}
+	
+	public File fileSearch() {
+		File dir = new File(FilePath);
+		final String extension = ".positions";
+		FilenameFilter filter = new FilenameFilter() {
+			public boolean accept(File file, String name) {
+				int index = name.lastIndexOf(".");
+				String ext = name.substring(index).toLowerCase();
+				if(ext.equals(extension)) {
+					return true;
+				}else {
+					return false;
+				}
+			}
+		};
+		File[] files = dir.listFiles(filter);
+		if(files.length == 0) {
+			JOptionPane.showMessageDialog(null, "There is no .positions file", "Message", JOptionPane.INFORMATION_MESSAGE);
+		}else if(files.length == 1) {
+			return files[0];
+		}else {
+			JOptionPane.showMessageDialog(null, "There are more than 1 .positions file", "Message", JOptionPane.INFORMATION_MESSAGE);
 		}
 		return null;
 	}
@@ -320,7 +389,7 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 		int option = JOptionPane.showConfirmDialog(null, "New Referece is set\n change all positions?",
 				"Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if(option == JOptionPane.YES_OPTION) {
-			view.DefTableModel.setRowCount(0);
+			view.DefTableModel.setRowCount(0);	
 			System.out.println("Reference was changed!");
 			Set<String> keySet = model.getKeys();
 			ArrayList<String> keyList = new ArrayList<String>(keySet);
@@ -334,20 +403,25 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 							UrPose.pose_trans(UrPose.pose_inv(oldRef.toArray(Length.Unit.M, Angle.Unit.RAD)), oldPose));
 					model.set(key, poseFactory.createPose(newPose[0], newPose[1], newPose[2], newPose[3], newPose[4], newPose[5], Length.Unit.M, Angle.Unit.RAD));
 					Data2Table(key, newPose);
-				}
-			}
-			double[] ref = newRef.toArray(Length.Unit.M, Angle.Unit.RAD);
-			if (selectedRobot.contentEquals("A")) {
-				model.set(RefValueA, poseFactory.createPose(ref[0], ref[1], ref[2], ref[3], ref[4], ref[5], Length.Unit.M, Angle.Unit.RAD));
-				Data2Table(RefValueA, ref);
-			}
-			if (selectedRobot.contentEquals("B")) {
-				model.set(RefValueB, poseFactory.createPose(ref[0], ref[1], ref[2], ref[3], ref[4], ref[5], Length.Unit.M, Angle.Unit.RAD));
-				Data2Table(RefValueB, ref);
+				}else {
+					System.out.println(key);
+					JointPositions jPos = model.get(key, jPosDefaultValue);
+					double[] jPosDouble = jPos2Double(jPos);
+					Data2Table(key.substring(1), jPosDouble);
+ 				}
 			}
 		}else {
 			return;
 		}
+	}
+	
+	private double[] jPos2Double(JointPositions jPos) {
+		double[] val = new double[6];
+		JointPosition[] jP = jPos.getAllJointPositions();
+		for(int i=0; i<6; i++) {
+			val[i] = jP[i].getPosition(Angle.Unit.RAD);
+		}
+		return val;
 	}
 	
 	private void Data2Table(String name, double val[]) {
@@ -369,10 +443,19 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 		return "["+jP[0].getPosition(Angle.Unit.RAD)+","+jP[1].getPosition(Angle.Unit.RAD)+","+jP[2].getPosition(Angle.Unit.RAD)+","+
 				jP[3].getPosition(Angle.Unit.RAD)+","+jP[4].getPosition(Angle.Unit.RAD)+","+jP[5].getPosition(Angle.Unit.RAD)+"]";
 	}
+	
+	public String getFilename() {
+		if(fileGlobal == null) {
+			return null;
+		}else {
+			return fileGlobal.getName();
+		}
+	}
 
 	@Override
 	public void openView() {
 		view.setPopupText(getPopupTitle());
+		onUrSelectedAuto();
 	}
 
 	@Override
