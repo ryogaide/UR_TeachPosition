@@ -15,11 +15,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.ur.urcap.api.contribution.InstallationNodeContribution;
 import com.ur.urcap.api.contribution.installation.InstallationAPIProvider;
@@ -52,8 +49,6 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	public final String RobotB = "B";
 	public static final String RefValueA = "A_REF_VAR";
 	public static final String RefValueB = "B_REF_VAR";
-//	private static final String PositionFileA = "/programs/NAG3M_UrA.positions";
-//	private static final String PositionFileB = "/programs/NAG3M_UrB.positions";
 	private static final String FilePath = "/programs/";
 	
 	private final TeachPositionInstallationNodeView view;
@@ -173,25 +168,6 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	}
 	
 	public void onUrSelected(JRadioButton radio) {
-
-//		JFileChooser filechooser = new JFileChooser();
-//		FileFilter filter = new FileNameExtensionFilter("Position file(.variables)", "variables");
-//		filechooser.addChoosableFileFilter(filter);
-//		filechooser.setFileFilter(filter);
-//		
-//		int selected = filechooser.showOpenDialog(null);
-////		if(selected == JFileChooser.APPROVE_OPTION) {
-//		File fileDebug =  filechooser.getSelectedFile();
-//		System.out.println("name: " + fileDebug.getName());
-//		System.out.println("path: " + fileDebug.getPath());
-//		selectedRobot = radio.getName();
-//		if(selectedRobot == RobotA) {
-//			fileGlobal = new File(PositionFileA);
-//		}else if(selectedRobot == RobotB) {
-//			fileGlobal = new File(PositionFileB);
-//		}else {
-//			JOptionPane.showMessageDialog(null,"You have to select robot" , "Message",JOptionPane.INFORMATION_MESSAGE);
-//		}
 		if(checkBeforeReadFile(fileGlobal) != true){
 			JOptionPane.showMessageDialog(null, "Uncorrect file name or path", "Message", JOptionPane.INFORMATION_MESSAGE);
 		};
@@ -230,11 +206,6 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 		} catch (IOException err) {
 			System.out.println(err);
 		}
-//		}else if(selected == JFileChooser.CANCEL_OPTION) {
-//			System.out.println("CANCEL");
-//		}else if(selected == JFileChooser.ERROR_OPTION) {
-//			System.out.println("ERROR");
-//		}
 	}
 	
 	private void removeAllKeys() {
@@ -246,25 +217,7 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	}
 	
 	public void testPrint() {
-		fileGlobal = fileSearch();
-		System.out.println(fileGlobal);
-	}
-	
-	public File fileChoose() {
-		JFileChooser filechooser = new JFileChooser();
-		FileFilter filter = new FileNameExtensionFilter("Position file(.variables)", "variables");
-		filechooser.addChoosableFileFilter(filter);
-		filechooser.setFileFilter(filter);
 		
-		int selected = filechooser.showOpenDialog(null);
-		if(selected == JFileChooser.APPROVE_OPTION) {
-			return filechooser.getSelectedFile();
-		}else if(selected == JFileChooser.CANCEL_OPTION) {
-			System.out.println("CANCEL");
-		}else if(selected == JFileChooser.ERROR_OPTION) {
-			System.out.println("ERROR");
-		}
-		return null;
 	}
 	
 	public File fileSearch() {
@@ -293,9 +246,6 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 	}
 	
 	public void fileWrite() {
-//		int option = JOptionPane.showConfirmDialog(null, "Overwrite the file : " + fileGlobal.getName() + "?",
-//				"Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-//		if(option == JOptionPane.YES_OPTION) {
 		if(fileGlobal == null || selectedRobot == null) {
 			return;
 		}
@@ -323,27 +273,9 @@ public class TeachPositionInstallationNodeContribution implements InstallationNo
 		}catch(IOException e3) {
 			return;
 		}
-//			JOptionPane.showMessageDialog(null, "Succeeded", "Message", JOptionPane.INFORMATION_MESSAGE);
-//		}else if(option == JOptionPane.NO_OPTION) {
-////			JOptionPane.showMessageDialog(null, "Failed", "Message", JOptionPane.INFORMATION_MESSAGE);
-//			return;
-//		}
 	}
 	
 	public void onRefButtonPressed() {
-//		UrPose pose = new UrPose(new double[] {0.2, 0.5, 0.1, 1.57, 0, 3.14});
-//		UrPose poseInv = new UrPose(UrPose.pose_inv(pose.toDoubleArray()));
-//		System.out.println("pose = " + pose.toString());
-//		System.out.println("poseInv = " + poseInv.toString());
-//		UrPose pose1 = new UrPose(new double[] {0.2, 0.5, 0.1, 1.57, 0, 0});
-//		UrPose pose2 = new UrPose(new double[] {0.2, 0.5, 0.6, 1.57, 0, 0});
-//		UrPose poseTrans = new UrPose(UrPose.pose_trans(pose1.toDoubleArray(), pose2.toDoubleArray()));
-//		System.out.println("pose1 = " + pose1.toString());
-//		System.out.println("pose2 = " + pose2.toString());
-//		System.out.println("poseTrans = " + poseTrans.toString());
-		
-		//System.out.println("REF button pressed!");
-		
 		Collection<Feature> features =  apiProvider.getInstallationAPI().getFeatureModel().getGeomFeatures(new Filter<Feature>() {
 			
 			@Override
